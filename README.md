@@ -8,7 +8,7 @@ The requirements of an Iterator are formulated in the Javadoc of the Iterator in
 https://docs.oracle.com/javase/8/docs/api/java/util/Iterator.html
 
 What does 'efficient' mean in this context?
-- Running time: The internal data structure is an ArrayList of LinkedLists. It is in the nature of hashing that the internal structure is sparse. That means only few positions in the ArrayList really contain a LinkedList with hopefully only very few (ideal: only one) elements. Before an iteration, we don't no these positions, i.e. we have to check each position of the ArrayList, sequentially until we find a next element. Therefore, an iteration of the HashSet is efficient if each place in the structure is visited only once!
+- Running time: The internal data structure is an ArrayList of LinkedLists. It is in the nature of hashing that the internal structure is sparse. That means only few positions in the ArrayList really contain a LinkedList with hopefully only very few (ideal: only one) elements. Before an iteration, we don't no these positions, i.e. we have to check each position of the ArrayList sequentially until we find a next element. Therefore, an iteration of the HashSet is efficient if each place in the structure is visited only once!
 - Space: We want to be efficient concerning usage of memory, too. That means, we want to avoid copying elements or lists of the internal structure. Nevertheless, it is definitely necessary to store the current state of the iteration in the Iterator object (how can this be done best?), since there might be some time between subsequent calls to the next() method. Be careful, the hasNext() method should not change this state, since it can be called several times without calling the next() method.
 - BTW, our HashSet class guarantees no order for the iteration (e.g. insertion order or natural order)!
 - Currently, I skipped the remove() method of the iterator to reduce complexity. So in a first draft I am happy with a read only iterator. If you are bored by that, don't hesitate to implement the remove() method as well.
@@ -20,7 +20,7 @@ Before you start:
 * Implement your Iterator in a new branch.
 * If you have finished create a Pull-Request.
 
-Following these rules will help me the compare your solutions easily (and to integrate the best one in the master branch:-))
+Following these rules will help me to compare your solutions easily (and to integrate the best one in the master branch:-))
 
 ## Getting started
 The repository contains a gradle project. You can build it best by using the contained gradle wrapper:
