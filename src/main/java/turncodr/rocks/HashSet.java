@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 public class HashSet<E> implements Iterable<E>{
 	
@@ -71,15 +73,81 @@ public class HashSet<E> implements Iterable<E>{
 		 * In a first version you can skip the remove method ;-)
 		 */
 		return new Iterator<E>() {
-			
+			ListIterator<List<E>> firstLevelIterator;
+			ListIterator<E> secondLevelIterator;
+
+			List<E> secondLevelList;
+	
+			E object;
+			E deleteObject;
+		
+			boolean objectIsAlreadyFound = false;
+			boolean firstSearch = true;
+			boolean elementWasRemoved = false;
+
 			@Override
 			public boolean hasNext() {
-				return false;
+
+				if(firstSearch){
+					firstLevelIterator = table.listIterator();
+					firstSearch = false;
+					return iterateFirstLevel();
+					
+				}else{
+					if(!objectIsAlreadyFound){
+						return true;
+					}	
+					
+					if(elementWasRemoved){
+						secondLevelIterator = secondLevelList.
+						listIterator(secondLevelIterator.previousIndex());
+						elementWasRemoved=false;
+					}
+
+					if(secondLevelIterator.hasNext()){
+						object = secondLevelIterator.next();
+						return true;
+					}else{
+						return iterateFirstLevel();
+					}	
+				}
 			}
+
 			@Override
 			public E next() {
-				return null;
+				if(hasNext()){
+					objectIsAlreadyFound = true;
+					deleteObject = object;
+					return object;
+				}else{
+					throw new NoSuchElementException();
+				}
+			}
+
+			@Override
+			public void remove(){
+				if(firstSearch){
+					throw new IllegalStateException();
+				}
+				elementWasRemoved = true;
+				HashSet.this.remove(deleteObject);
 			}			
+			
+			private boolean iterateFirstLevel(){
+				while(firstLevelIterator.hasNext()){
+					secondLevelList = firstLevelIterator.next();
+					if(secondLevelList != null){
+						if(!secondLevelList.isEmpty()){
+							secondLevelIterator = secondLevelList.listIterator();
+							object = secondLevelIterator.next();
+							objectIsAlreadyFound = false;	
+							return true;
+						}
+					}
+				}
+				object = null;
+				return false;
+			}
 		};
 	}
 
