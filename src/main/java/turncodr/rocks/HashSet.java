@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
 public class HashSet<E> implements Iterable<E>{
 	
@@ -71,15 +73,77 @@ public class HashSet<E> implements Iterable<E>{
 		 * In a first version you can skip the remove method ;-)
 		 */
 		return new Iterator<E>() {
-			
+			ListIterator<List<E>> firstLevelIterator;
+			ListIterator<E> secondLevelIterator;
+			ListIterator<E> oldSecondLevelIterator;
+			List<E> secondLevelList;
+	
+			E objectForRemove;
+			E object;		
+
 			@Override
 			public boolean hasNext() {
-				return false;
+				if(firstLevelIterator == null){
+					firstLevelIterator = table.listIterator();
+					return findNextNonEmptySecondLevelList();
+				}else{
+					if(object != null){
+						return true;
+					}	
+					
+					if(secondLevelIterator.hasNext()){
+						object = secondLevelIterator.next();
+						return true;
+					}else{
+						return findNextNonEmptySecondLevelList();
+					}	
+				}
 			}
+
 			@Override
 			public E next() {
-				return null;
+				if(hasNext()){
+					E nextObject = object;
+					objectForRemove = object;
+					object = null;
+					return nextObject;
+				}else{
+					throw new NoSuchElementException();
+				}
+			}
+
+			@Override
+			public void remove(){
+				if(objectForRemove == null){
+					throw new IllegalStateException();
+				}
+				
+				if(secondLevelList.contains(objectForRemove)){
+					secondLevelIterator.remove();
+				}else{
+					oldSecondLevelIterator.remove();
+				}
+
+				objectForRemove = null;
+				size--;	
+				
 			}			
+			
+			private boolean findNextNonEmptySecondLevelList(){
+				while(firstLevelIterator.hasNext()){
+					secondLevelList = firstLevelIterator.next();
+					if(secondLevelList != null){
+						if(!secondLevelList.isEmpty()){
+							oldSecondLevelIterator = secondLevelIterator;
+							secondLevelIterator = secondLevelList.listIterator();
+							object = secondLevelIterator.next();
+							return true;
+						}
+					}
+				}
+				object = null;
+				return false;
+			}
 		};
 	}
 
